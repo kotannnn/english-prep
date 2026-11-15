@@ -192,6 +192,13 @@ textarea.input { min-height: 96px; resize: vertical; }
 .chip.err { border-color: var(--bad); background: var(--bad-soft); animation: shake .3s; }
 @keyframes shake { 25% { transform: translateX(-4px); } 75% { transform: translateX(4px); } }
 
+/* Audio + transcript */
+.audio-card { margin-bottom: 8px; border-left: 4px solid var(--accent); }
+.transcript { margin-top: 16px; padding: 16px; border-radius: 12px; background: var(--surface-2); font-size: 1.04rem; line-height: 1.8; }
+.ts { cursor: pointer; border-radius: 4px; transition: background .15s; }
+.ts:hover { background: var(--primary-soft); }
+.ts.speaking { background: var(--accent-soft); color: var(--text); box-shadow: 0 0 0 2px var(--accent-soft); }
+
 /* Diff */
 .diff { line-height: 1.9; }
 .diff .w-ok { color: var(--ok); }
