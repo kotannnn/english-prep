@@ -75,6 +75,10 @@ const T = {
     time_left: 'Осталось', unanswered: 'без ответа', mock_confirm: 'Завершить экзамен? Есть вопросы без ответа.',
     footer: 'Тренажёр составлен по материалам курса (рабочие листы, QCM 1–7). Прогресс хранится только в вашем браузере.',
     theme: 'Сменить тему', lang_label: 'Язык интерфейса', saved: 'Сохранено', back: '← Назад',
+    audio_blocked: 'Браузер заблокировал звук — нажмите кнопку ещё раз.', audio_error: 'Не удалось воспроизвести. Проверьте звук и наличие английского голоса в системе.',
+    audio_title: 'Аудио и текст', audio_on: 'Включить аудио', audio_off: 'Выключить аудио', speed: 'Скорость',
+    play_from: 'Нажмите, чтобы слушать с этого предложения',
+    transcript_note: 'Текстовая версия составлена по материалам рабочего листа; озвучивает браузер (английский голос). Нажмите на предложение, чтобы слушать с него.',
     th_auto: 'Тема: как в системе', th_light: 'Тема: светлая', th_dark: 'Тема: тёмная'
   },
   en: {
@@ -135,6 +139,10 @@ const T = {
     time_left: 'Time left', unanswered: 'unanswered', mock_confirm: 'Finish the exam? Some questions are unanswered.',
     footer: 'Built from the course materials (worksheets, MCQ 1–7). Your progress is stored only in your browser.',
     theme: 'Toggle theme', lang_label: 'Interface language', saved: 'Saved', back: '← Back',
+    audio_blocked: 'The browser blocked audio — press the button again.', audio_error: 'Could not play. Check your sound and that an English voice is installed.',
+    audio_title: 'Audio & transcript', audio_on: 'Turn audio on', audio_off: 'Turn audio off', speed: 'Speed',
+    play_from: 'Click to listen from this sentence',
+    transcript_note: 'Transcript based on the worksheet; read aloud by your browser (English voice). Click a sentence to listen from there.',
     th_auto: 'Theme: system', th_light: 'Theme: light', th_dark: 'Theme: dark'
   }
 };
@@ -161,16 +169,58 @@ function pickVoice() {
   voice = vs.find(v => /en[-_]GB/i.test(v.lang)) || vs.find(v => /^en/i.test(v.lang)) || null;
 }
 if (TTS) { pickVoice(); speechSynthesis.onvoiceschanged = pickVoice; }
-function speak(text, rate = 1) {
-  if (!TTS) { toast(t('no_tts')); return; }
-  speechSynthesis.cancel();
+const splitSentences = s => s.replace(/([.!?]["”]?)\s+(?=["“A-Z0-9])/g, '$1\u0000').split('\u0000').filter(Boolean);
+/* Sentence-by-sentence player: Chrome silently cuts utterances longer than ~15 s
+   and may drop speak() called right after cancel(), so we queue short chunks. */
+const player = { key: null, sents: [], i: 0, rate: 1, playing: false, gen: 0 };
+function utter(text, rate) {
   const u = new SpeechSynthesisUtterance(text);
   u.lang = voice ? voice.lang : 'en-GB';
   if (voice) u.voice = voice;
   u.rate = rate;
-  speechSynthesis.speak(u);
+  return u;
 }
-const splitSentences = s => s.replace(/([.!?]["”]?)\s+(?=["“A-Z])/g, '$1\u0000').split('\u0000').filter(Boolean);
+function playerUI() {
+  document.querySelectorAll('[data-act="a-toggle"]').forEach(b => {
+    const on = player.playing && player.key === b.dataset.key;
+    b.innerHTML = on ? '⏸ ' + t('audio_off') : '▶ ' + t('audio_on');
+    b.setAttribute('aria-pressed', String(on));
+  });
+  document.querySelectorAll('.ts.speaking').forEach(el => el.classList.remove('speaking'));
+  if (player.playing) {
+    const el = document.querySelector(`.ts[data-key="${player.key}"][data-i="${player.i}"]`);
+    if (el) { el.classList.add('speaking'); }
+  }
+}
+function stopAudio() {
+  player.gen++; player.playing = false;
+  if (TTS) speechSynthesis.cancel();
+  playerUI();
+}
+function playSeq(key, sents, rate = 1, start = 0) {
+  if (!TTS) { toast(t('no_tts')); return; }
+  const busy = speechSynthesis.speaking || speechSynthesis.pending;
+  stopAudio();
+  if (speechSynthesis.paused) speechSynthesis.resume();
+  const gen = player.gen;
+  Object.assign(player, { key, sents, i: start, rate, playing: true });
+  const next = () => {
+    if (gen !== player.gen) return;
+    if (player.i >= player.sents.length) { player.playing = false; playerUI(); return; }
+    const u = utter(player.sents[player.i], player.rate);
+    u.onend = () => { if (gen !== player.gen) return; player.i++; next(); };
+    u.onerror = e => {
+      if (gen !== player.gen || e.error === 'interrupted' || e.error === 'canceled') return;
+      player.playing = false; playerUI(); toast(t(e.error === 'not-allowed' ? 'audio_blocked' : 'audio_error'));
+    };
+    speechSynthesis.speak(u);
+    playerUI();
+  };
+  // iOS Safari only allows speech started synchronously inside the tap handler;
+  // Chrome may drop speak() issued right after cancel(), so delay only in that case.
+  if (busy) setTimeout(next, 80); else next();
+}
+function speak(text, rate = 1) { playSeq('_single', [text], rate); }
 
 /* ---------- toast ---------- */
 let toastT;
@@ -329,6 +379,7 @@ function pageFile(id) {
   if (!f) return notFound();
   let h = `<div class="crumbs"><a href="#/files">${t('back')}</a></div>
   <div class="page-head"><h1>${esc(f.title)}</h1><p class="muted">${esc(L(f.summary))}</p></div>`;
+  if (f.transcript) h += audioCard(id + ':audio', f.transcript);
   f.sections.forEach((sec, si) => {
     const key = `${id}:${si}`;
     h += `<div class="section-title"><span class="badge primary">${si + 1}</span><h2 style="margin:0">${esc(sec.title)}</h2></div>`;
@@ -337,6 +388,19 @@ function pageFile(id) {
   const idx = FILES.findIndex(x => x.id === id), next = FILES[idx + 1];
   if (next) h += `<div class="btn-row" style="margin-top:24px"><a class="btn btn-primary" href="#/files/${next.id}">${esc(next.title)} →</a></div>`;
   return h;
+}
+
+function audioCard(key, text) {
+  const st = (S.f[key] = S.f[key] || { show: true, rate: 1 });
+  const sents = splitSentences(text), on = player.playing && player.key === key;
+  return `<div class="card audio-card"><div class="row"><h2 style="margin:0">🎧 ${t('audio_title')}</h2></div>
+    ${TTS ? `<div class="btn-row" style="margin-top:14px">
+      <button class="btn btn-primary" data-act="a-toggle" data-key="${key}" aria-pressed="${on}">${on ? '⏸ ' + t('audio_off') : '▶ ' + t('audio_on')}</button>
+      <div class="seg" role="group" aria-label="${t('speed')}">${[1, 0.8, 0.65].map(r => `<button data-act="a-rate" data-key="${key}" data-rate="${r}" aria-pressed="${st.rate === r}">${r}×</button>`).join('')}</div>
+      <button class="btn" data-act="a-show" data-key="${key}">📄 ${st.show ? t('hide_text') : t('show_text')}</button></div>`
+      : `<p class="notice" style="margin-top:12px">${t('no_tts')}</p>`}
+    ${st.show || !TTS ? `<div class="transcript">${sents.map((s, i) => `<span class="ts${on && player.i === i ? ' speaking' : ''}" data-key="${key}" data-i="${i}"${TTS ? ` data-act="a-from" role="button" tabindex="0" title="${t('play_from')}"` : ''}>${esc(s)}</span>`).join(' ')}</div>
+      <p class="small muted" style="margin:10px 0 0">ℹ️ ${t('transcript_note')}</p>` : ''}</div>`;
 }
 
 function renderSection(sec, key) {
@@ -636,7 +700,7 @@ function applyStatic() {
   $('#themeBtn').setAttribute('aria-label', t('theme'));
   $('#langSeg').setAttribute('aria-label', t('lang_label'));
 }
-window.addEventListener('hashchange', () => { if (TTS) speechSynthesis.cancel(); render(); window.scrollTo(0, 0); });
+window.addEventListener('hashchange', () => { stopAudio(); render(); window.scrollTo(0, 0); });
 
 /* ---------- theme ---------- */
 let theme = store.get('ep_theme', 'auto');
@@ -682,10 +746,19 @@ main.addEventListener('click', e => {
     case 'fill-reset': F[d.key] = { vals: {}, checked: false, shown: false }; render(); break;
     case 'm': matchClick(d.key, d.side, +d.i); break;
     case 'm-reset': { const st = matchStore[d.key]; st.done = []; st.sel = null; st.err = null; st.miss = 0; st.order = shuffle(st.order); render(); break; }
-    case 'd-play': { const f = FILES.find(x => d.key.startsWith(x.id + ':')); speak(f.sections[+d.key.split(':')[1]].text, +d.rate); break; }
-    case 'd-stop': if (TTS) speechSynthesis.cancel(); break;
+    case 'd-play': { const f = FILES.find(x => d.key.startsWith(x.id + ':')); playSeq(d.key, splitSentences(f.sections[+d.key.split(':')[1]].text), +d.rate); break; }
+    case 'd-stop': stopAudio(); break;
     case 'd-sent': { const st = F[d.key], f = FILES.find(x => d.key.startsWith(x.id + ':')), sents = splitSentences(f.sections[+d.key.split(':')[1]].text);
-      st.i = Math.max(0, Math.min(sents.length - 1, st.i + (+d.dir))); speak(sents[st.i], 0.8); if (+d.dir) render(); break; }
+      st.i = Math.max(0, Math.min(sents.length - 1, st.i + (+d.dir))); if (+d.dir) render(); playSeq(d.key, [sents[st.i]], 0.8); break; }
+    case 'a-toggle': { if (player.playing && player.key === d.key) { stopAudio(); break; }
+      const f = FILES.find(x => d.key === x.id + ':audio'), st = F[d.key];
+      const sents = splitSentences(f.transcript), resume = player.key === d.key && player.i < sents.length ? player.i : 0;
+      playSeq(d.key, sents, st.rate, resume); break; }
+    case 'a-rate': { const st = F[d.key]; st.rate = +d.rate;
+      el.parentNode.querySelectorAll('button').forEach(b => b.setAttribute('aria-pressed', String(b === el)));
+      if (player.playing && player.key === d.key) playSeq(d.key, player.sents, st.rate, player.i); break; }
+    case 'a-show': F[d.key].show = !F[d.key].show; render(); break;
+    case 'a-from': { const f = FILES.find(x => d.key === x.id + ':audio'); playSeq(d.key, splitSentences(f.transcript), F[d.key].rate, +d.i); break; }
     case 'd-check': F[d.key].checked = true; render(); break;
     case 'd-show': F[d.key].show = !F[d.key].show; render(); break;
     case 'say': speak(d.text, 0.9); break;
@@ -713,7 +786,7 @@ main.addEventListener('click', e => {
   }
 });
 main.addEventListener('keydown', e => {
-  if ((e.key === 'Enter' || e.key === ' ') && e.target.matches('.flash')) { e.preventDefault(); e.target.click(); }
+  if ((e.key === 'Enter' || e.key === ' ') && e.target.matches('.flash, .ts')) { e.preventDefault(); e.target.click(); }
 });
 main.addEventListener('input', e => {
   const el = e.target, d = el.dataset;
