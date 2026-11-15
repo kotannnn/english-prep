@@ -26,8 +26,10 @@ const T = {
     st_tests: 'тестов пройдено', st_words: 'слов выучено', st_mock: 'лучший пробный',
     sections: 'Разделы',
     c_exam: 'Протокол контроля', c_exam_d: 'Когда, как и что сдаём: письменный тест и устная презентация.',
-    c_grammar: 'Грамматика (QCM)', c_grammar_d: '7 тестов, 120 вопросов с объяснениями.',
-    c_files: 'Понимание текста', c_files_d: 'File 1 и File 2: вопросы, пропуски, диктанты с озвучкой.',
+    c_grammar: 'Грамматика (QCM)', c_grammar_d: '{n} тестов, {q} вопросов с объяснениями: с листочков и дополнительные.',
+    c_files: 'Понимание текста', c_files_d: '{f} текстов с аудио: вопросы, пропуски, глоссарий, диктанты.',
+    extra: 'Дополнительно', extra_tests: 'Дополнительные тесты', extra_texts: 'Дополнительные тексты', from_course: 'Из курса (листочки)',
+    transcript_note_extra: 'Дополнительный текст для практики (не из рабочего листа); озвучивает браузер. Нажмите на предложение, чтобы слушать с него.',
     c_vocab: 'Лексика', c_vocab_d: 'Слова по темам: список, карточки, тест, сопоставление.',
     c_oral: 'Устная презентация', c_oral_d: 'План, фразы, критерии B2 и таймер на 5 минут.',
     c_mock: 'Пробный экзамен', c_mock_d: 'Случайные вопросы на время — как на настоящем QCM.',
@@ -53,7 +55,7 @@ const T = {
     answered: 'Отвечено', reset: 'Сбросить', result: 'Результат', retry: 'Ещё раз', next_test: 'Следующий тест', all_tests: 'Все тесты',
     great: 'Отлично! Вы готовы.', good: 'Хорошо! Повторите ошибки.', weak: 'Нужно ещё потренироваться — прочитайте объяснения.',
     correct: 'Верно!', wrong: 'Неверно.', answer_is: 'Правильный ответ',
-    files_title: 'Понимание текста', files_sub: 'Задания из рабочих листов. Тексты для диктанта озвучиваются браузером.',
+    files_title: 'Понимание текста', files_sub: 'Тексты с листочков и дополнительные тексты для практики. Каждый текст можно слушать и читать.',
     check: 'Проверить', show_answer: 'Показать ответ', hide_answer: 'Скрыть ответ', your_answer: 'Ваш ответ…',
     model: 'Образец ответа', key_ideas: 'Ключевые слова', show_answers: 'Показать ответы',
     true_: 'True (верно)', false_: 'False (неверно)', select_all: 'Выберите все правильные варианты, затем нажмите «Проверить».',
@@ -70,7 +72,7 @@ const T = {
     timer: 'Таймер выступления', t_start: 'Старт', t_pause: 'Пауза', t_reset: 'Сброс', time_up: 'Время вышло!',
     plan: 'Структура презентации', criteria_b2: 'Самопроверка по критериям B2', phrases: 'Полезные фразы', all_phrases: 'Все фразы →',
     topics: 'Идеи тем', tips: 'Советы',
-    mock_title: 'Пробный экзамен', mock_sub: 'Случайные вопросы из всех 7 тестов. Ответы и объяснения — только в конце.',
+    mock_title: 'Пробный экзамен', mock_sub: 'Случайные вопросы из всех тестов. Ответы и объяснения — только в конце.',
     mock_q: 'вопросов', mock_min: 'мин', mock_start: 'Начать экзамен', finish: 'Завершить', review: 'Разбор ответов',
     time_left: 'Осталось', unanswered: 'без ответа', mock_confirm: 'Завершить экзамен? Есть вопросы без ответа.',
     footer: 'Тренажёр составлен по материалам курса (рабочие листы, QCM 1–7). Прогресс хранится только в вашем браузере.',
@@ -90,8 +92,10 @@ const T = {
     st_tests: 'tests completed', st_words: 'words learned', st_mock: 'best mock',
     sections: 'Sections',
     c_exam: 'Exam protocol', c_exam_d: 'When, how and what: written test and oral presentation.',
-    c_grammar: 'Grammar (MCQ)', c_grammar_d: '7 tests, 120 questions with explanations.',
-    c_files: 'Comprehension', c_files_d: 'File 1 and File 2: questions, gap fills, spoken dictations.',
+    c_grammar: 'Grammar (MCQ)', c_grammar_d: '{n} tests, {q} questions with explanations: worksheets plus extra practice.',
+    c_files: 'Comprehension', c_files_d: '{f} texts with audio: questions, gap fills, glossary, dictations.',
+    extra: 'Extra', extra_tests: 'Extra practice tests', extra_texts: 'Extra texts', from_course: 'From the course (worksheets)',
+    transcript_note_extra: 'Extra practice text (not from the worksheets); read aloud by your browser. Click a sentence to listen from there.',
     c_vocab: 'Vocabulary', c_vocab_d: 'Words by topic: list, flashcards, quiz, matching.',
     c_oral: 'Oral presentation', c_oral_d: 'Structure, phrases, B2 criteria and a 5-minute timer.',
     c_mock: 'Mock exam', c_mock_d: 'Random timed questions, just like the real MCQ.',
@@ -117,7 +121,7 @@ const T = {
     answered: 'Answered', reset: 'Reset', result: 'Result', retry: 'Try again', next_test: 'Next test', all_tests: 'All tests',
     great: 'Excellent! You are ready.', good: 'Good! Review your mistakes.', weak: 'Keep practising — read the explanations.',
     correct: 'Correct!', wrong: 'Wrong.', answer_is: 'Correct answer',
-    files_title: 'Comprehension', files_sub: 'Exercises from the worksheets. Dictation texts are read aloud by your browser.',
+    files_title: 'Comprehension', files_sub: 'Worksheet texts plus extra practice texts. Every text can be listened to and read.',
     check: 'Check', show_answer: 'Show answer', hide_answer: 'Hide answer', your_answer: 'Your answer…',
     model: 'Model answer', key_ideas: 'Key words', show_answers: 'Show answers',
     true_: 'True', false_: 'False', select_all: 'Select all the correct options, then press “Check”.',
@@ -134,7 +138,7 @@ const T = {
     timer: 'Presentation timer', t_start: 'Start', t_pause: 'Pause', t_reset: 'Reset', time_up: 'Time is up!',
     plan: 'Presentation structure', criteria_b2: 'B2 self-assessment', phrases: 'Useful phrases', all_phrases: 'All phrases →',
     topics: 'Topic ideas', tips: 'Tips',
-    mock_title: 'Mock exam', mock_sub: 'Random questions from all 7 tests. Answers and explanations only at the end.',
+    mock_title: 'Mock exam', mock_sub: 'Random questions from all tests. Answers and explanations only at the end.',
     mock_q: 'questions', mock_min: 'min', mock_start: 'Start exam', finish: 'Finish', review: 'Review',
     time_left: 'Time left', unanswered: 'unanswered', mock_confirm: 'Finish the exam? Some questions are unanswered.',
     footer: 'Built from the course materials (worksheets, MCQ 1–7). Your progress is stored only in your browser.',
@@ -305,6 +309,8 @@ function pageHome() {
     ['#/exam', '📋', '', 'c_exam'], ['#/grammar', '✍️', '', 'c_grammar'], ['#/files', '🎧', 'accent', 'c_files'],
     ['#/vocab', '📚', 'ok', 'c_vocab'], ['#/oral', '🎤', 'accent', 'c_oral'], ['#/mock', '⏱️', '', 'c_mock']
   ];
+  const nq = GRAMMAR.reduce((s, g) => s + g.questions.length, 0);
+  const fill = s => s.replace('{n}', GRAMMAR.length).replace('{q}', nq).replace('{f}', FILES.length);
   return `<section class="hero">
     <div><h1>${t('hero_title')}</h1><p class="hero-lead">${t('hero_lead')}</p>
       <div class="hero-actions"><a class="btn btn-primary" href="#/grammar">${t('start_grammar')} →</a><a class="btn" href="#/exam">${t('how_exam')}</a></div></div>
@@ -314,7 +320,7 @@ function pageHome() {
       <div class="stat"><b>${prog.mock ? prog.mock + '%' : '—'}</b><span>${t('st_mock')}</span></div>
     </div></section>
     <h2>${t('sections')}</h2>
-    <div class="grid grid-3">${cards.map(c => `<a class="card" href="${c[0]}"><div class="card-icon ${c[2]}">${c[1]}</div><h3>${t(c[3])}</h3><p class="muted small">${t(c[3] + '_d')}</p></a>`).join('')}</div>`;
+    <div class="grid grid-3">${cards.map(c => `<a class="card" href="${c[0]}"><div class="card-icon ${c[2]}">${c[1]}</div><h3>${t(c[3])}</h3><p class="muted small">${fill(t(c[3] + '_d'))}</p></a>`).join('')}</div>`;
 }
 
 function pageExam() {
@@ -336,13 +342,14 @@ function pageExam() {
 
 function pageGrammarList() {
   return `<div class="page-head"><h1>${t('grammar_title')}</h1><p class="muted">${t('grammar_sub')}</p></div>
-  <div class="grid grid-3">${GRAMMAR.map(g => {
+  ${[false, true].map(ex => `<div class="section-title"><h2 style="margin:0">${ex ? '➕ ' + t('extra_tests') : '📄 ' + t('from_course')}</h2></div>
+  <div class="grid grid-3">${GRAMMAR.filter(g => !!g.extra === ex).map(g => {
     const p = prog.g[g.id], st = S.g[g.id], inProg = st && Object.keys(st.ans).length;
-    return `<a class="card" href="#/grammar/${g.id}"><div class="row"><span class="badge primary">${g.level}</span><span class="badge">${esc(g.part)}</span></div>
+    return `<a class="card" href="#/grammar/${g.id}"><div class="row"><span class="badge primary">${g.level}</span>${g.extra ? `<span class="badge accent">${t('extra')}</span>` : ''}<span class="badge">${esc(g.part)}</span></div>
       <h3 style="margin-top:12px">${esc(g.title)}</h3><p class="muted small">${g.questions.length} ${t('questions')}</p>
       ${p ? `<div class="row small"><span>${t('best')}: <b>${p.best}/${p.total}</b></span></div><div class="progress" style="margin-top:6px"><i style="width:${pct(p.best, p.total)}%"></i></div>`
         : `<p class="small muted">${inProg ? t('continue') + '…' : t('not_started')}</p>`}</a>`;
-  }).join('')}</div>
+  }).join('')}</div>`).join('')}
   <a class="card" href="#/mock" style="margin-top:16px"><div class="row"><div class="card-icon accent" style="margin:0">⏱️</div><div><h3>${t('c_mock')}</h3><p class="muted small">${t('c_mock_d')}</p></div></div></a>`;
 }
 
@@ -369,9 +376,10 @@ function pageGrammar(id) {
 
 function pageFilesList() {
   return `<div class="page-head"><h1>${t('files_title')}</h1><p class="muted">${t('files_sub')}</p></div>
-  <div class="grid grid-2">${FILES.map(f => `<a class="card" href="#/files/${f.id}"><div class="card-icon accent">${f.id === 'file1' ? '📰' : '🎬'}</div>
+  ${[false, true].map(ex => `<div class="section-title"><h2 style="margin:0">${ex ? '➕ ' + t('extra_texts') : '📄 ' + t('from_course')}</h2></div>
+  <div class="grid grid-2">${FILES.filter(f => !!f.extra === ex).map(f => `<a class="card" href="#/files/${f.id}"><div class="row" style="justify-content:space-between"><div class="card-icon accent">${f.icon || (f.id === 'file1' ? '📰' : '🎬')}</div>${f.extra ? `<span class="badge accent">${t('extra')}</span>` : ''}</div>
     <h3>${esc(f.title)}</h3><p class="muted small">${esc(L(f.topic))}</p><p class="small">${esc(L(f.summary))}</p>
-    <div class="row">${[...new Set(f.sections.map(s => s.type))].map(ty => `<span class="badge">${ty}</span>`).join('')}</div></a>`).join('')}</div>`;
+    <div class="row">${[...new Set(f.sections.map(s => s.type))].map(ty => `<span class="badge">${ty}</span>`).join('')}</div></a>`).join('')}</div>`).join('')}`;
 }
 
 function pageFile(id) {
@@ -379,7 +387,7 @@ function pageFile(id) {
   if (!f) return notFound();
   let h = `<div class="crumbs"><a href="#/files">${t('back')}</a></div>
   <div class="page-head"><h1>${esc(f.title)}</h1><p class="muted">${esc(L(f.summary))}</p></div>`;
-  if (f.transcript) h += audioCard(id + ':audio', f.transcript);
+  if (f.transcript) h += audioCard(id + ':audio', f.transcript, f.extra);
   f.sections.forEach((sec, si) => {
     const key = `${id}:${si}`;
     h += `<div class="section-title"><span class="badge primary">${si + 1}</span><h2 style="margin:0">${esc(sec.title)}</h2></div>`;
@@ -390,7 +398,7 @@ function pageFile(id) {
   return h;
 }
 
-function audioCard(key, text) {
+function audioCard(key, text, extra) {
   const st = (S.f[key] = S.f[key] || { show: true, rate: 1 });
   const sents = splitSentences(text), on = player.playing && player.key === key;
   return `<div class="card audio-card"><div class="row"><h2 style="margin:0">🎧 ${t('audio_title')}</h2></div>
@@ -400,7 +408,7 @@ function audioCard(key, text) {
       <button class="btn" data-act="a-show" data-key="${key}">📄 ${st.show ? t('hide_text') : t('show_text')}</button></div>`
       : `<p class="notice" style="margin-top:12px">${t('no_tts')}</p>`}
     ${st.show || !TTS ? `<div class="transcript">${sents.map((s, i) => `<span class="ts${on && player.i === i ? ' speaking' : ''}" data-key="${key}" data-i="${i}"${TTS ? ` data-act="a-from" role="button" tabindex="0" title="${t('play_from')}"` : ''}>${esc(s)}</span>`).join(' ')}</div>
-      <p class="small muted" style="margin:10px 0 0">ℹ️ ${t('transcript_note')}</p>` : ''}</div>`;
+      <p class="small muted" style="margin:10px 0 0">ℹ️ ${t(extra ? 'transcript_note_extra' : 'transcript_note')}</p>` : ''}</div>`;
 }
 
 function renderSection(sec, key) {
