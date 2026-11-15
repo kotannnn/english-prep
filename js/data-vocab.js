@@ -1,0 +1,168 @@
+/* Vocabulary by topic: [word, russian, english definition, example] */
+window.VOCAB = [
+{
+  id: 'riots', title: { ru: 'Беспорядки и общество (File 1)', en: 'Riots & society (File 1)' }, icon: '🔥',
+  words: [
+    ['riot', 'бунт, массовые беспорядки', 'a violent public disturbance by a crowd', 'Britain had its worst riots since the 1980s.'],
+    ['rioter', 'участник беспорядков', 'a person taking part in a riot', 'Many rioters were arrested.'],
+    ['to loot / looting', 'грабить / мародёрство', 'to steal goods during a riot or war', 'Shops were looted during the night.'],
+    ['disorder', 'беспорядок, нарушение порядка', 'a lack of order; public violence', 'They were arrested for violence and disorder.'],
+    ['law and order', 'правопорядок', 'a situation where laws are respected', 'We will restore law and order.'],
+    ['to restore', 'восстанавливать', 'to bring back to a former condition', 'The police restored calm.'],
+    ['to rebuild', 'восстанавливать, отстраивать', 'to build again', 'We will rebuild our communities.'],
+    ['to blame (sth on sb)', 'обвинять, винить', 'to say someone is responsible for something bad', 'Many people blamed the riots on unemployment.'],
+    ['unemployment', 'безработица', 'the state of not having a job', 'High unemployment hits young people.'],
+    ['recovery', 'восстановление (экономики)', 'a return to a normal economic situation', 'The economic recovery was slow.'],
+    ['cuts', 'сокращения (бюджета)', 'reductions in public spending', 'Cuts to public services angered people.'],
+    ['public services', 'государственные услуги', 'services provided by the state (health, police…)', 'Public services need more money.'],
+    ['parenting', 'воспитание детей', 'the way parents raise their children', 'The government blamed bad parenting.'],
+    ['selfishness', 'эгоизм', 'caring only about yourself', 'Selfishness was one of the causes.'],
+    ['lack of responsibility', 'безответственность', 'not accepting your duties', 'He spoke of a lack of responsibility.'],
+    ['to put up with', 'терпеть, мириться', 'to tolerate', 'We will not put up with this.'],
+    ['a culture of fear', 'атмосфера страха', 'a situation where people live in fear', 'We will not allow a culture of fear.'],
+    ['frightening / scary', 'пугающий', 'causing fear', 'The riots were violent and scary.'],
+    ['calm / peaceful', 'спокойный / мирный', 'quiet, without violence', 'He wants people to stay calm.'],
+    ['victim', 'жертва', 'a person harmed or killed', 'His son was an innocent victim.'],
+    ['emergency meeting', 'экстренное совещание', 'an urgent, unplanned meeting', 'Cameron called an emergency meeting.'],
+    ['House of Commons', 'Палата общин', 'the elected chamber of the UK Parliament', 'He spoke in the House of Commons.']
+  ]
+},
+{
+  id: 'justice', title: { ru: 'Преступление и правосудие (File 2)', en: 'Crime & justice (File 2)' }, icon: '⚖️',
+  words: [
+    ['chaos', 'хаос', 'complete disorder and confusion', 'The U.S. is thrown into chaos.'],
+    ['assassin', 'убийца (политика)', 'a killer of a politician or public person', 'The assassin was John Wilkes Booth.'],
+    ['assassination', 'политическое убийство', 'the murder of an important person', 'the assassination of President Lincoln'],
+    ['conspiracy', 'заговор', 'a secret plan to do something illegal', 'There were eight others in a conspiracy.'],
+    ['conspirator', 'заговорщик', 'a person who takes part in a conspiracy', 'an alleged conspirator who escaped'],
+    ['targeted', 'нацеленный', 'focused on someone or something', 'targeting not only the president'],
+    ['alleged', 'предполагаемый', 'believed, but not yet proven', 'an alleged conspirator'],
+    ['indicted', 'обвинённый (официально)', 'formally charged with a crime', 'She was indicted in the assassination.'],
+    ['atrocity', 'зверство', 'a shocking, violent act', 'The war was full of atrocities.'],
+    ['the Union', 'Север (в Гражданской войне США)', 'the North in the American Civil War', 'He fought in the Union Army.'],
+    ['reluctant', 'неохотный', 'hesitant, unenthusiastic', 'He was reluctant to defend her.'],
+    ['premiered', 'вышел в премьеру', 'had the first public performance', 'The film premiered in Toronto.'],
+    ['glimpse', 'мимолётный взгляд', 'a short look', 'We caught a glimpse of the actor.'],
+    ['unlawfully', 'незаконно', 'against the law; illegally', 'She was unlawfully tried.'],
+    ['stomp', 'горячо поддерживать', 'enthusiastically supported', 'The audience stomped for the film.'],
+    ['attorney', 'адвокат', 'a lawyer (US)', "Mary Surratt's attorney"],
+    ['fair trial', 'справедливый суд', 'a trial that respects the law', "Mary didn't get a fair trial."],
+    ['to hang', 'повесить (казнить)', 'to kill someone with a rope as punishment', 'An innocent woman should not hang.'],
+    ['to accuse', 'обвинять', 'to say someone has done something wrong', 'They accuse her son.'],
+    ['to set free', 'освободить', 'to release', 'She doesn’t want them to set her free.'],
+    ['to deceive / delude oneself', 'обманывать себя', 'to believe something false', "I've never deluded myself."],
+    ['to strike a chord', 'задеть за живое', 'to connect with someone emotionally', 'The film struck a chord with viewers.']
+  ]
+},
+{
+  id: 'politics', title: { ru: 'Политика и актуальные события', en: 'Politics & current affairs' }, icon: '🏛️',
+  words: [
+    ['government', 'правительство', 'the group of people who run a country', 'The government announced new measures.'],
+    ['election', 'выборы', 'the process of choosing by vote', 'The election will take place in May.'],
+    ['to vote', 'голосовать', 'to express a choice officially', 'Young people should vote.'],
+    ['policy', 'политика (курс, мера)', 'a plan of action adopted by a government', 'a new climate policy'],
+    ['law / bill', 'закон / законопроект', 'a rule / a proposed law', 'The bill was passed by Parliament.'],
+    ['to pass a law', 'принять закон', 'to approve a law officially', 'Parliament passed the law.'],
+    ['protest / demonstration', 'протест / демонстрация', 'a public show of disagreement', 'Thousands joined the protest.'],
+    ['strike', 'забастовка', 'refusing to work as a protest', 'Rail workers are on strike.'],
+    ['crisis', 'кризис', 'a time of great difficulty', 'an energy crisis'],
+    ['issue', 'проблема, вопрос', 'an important topic for debate', 'Climate change is a major issue.'],
+    ['threat', 'угроза', 'something likely to cause harm', 'Pollution is a threat to the environment.'],
+    ['measures', 'меры', 'actions taken to achieve something', 'Stricter measures need to be taken.'],
+    ['sanctions', 'санкции', 'penalties against a country', 'New sanctions were imposed.'],
+    ['summit', 'саммит', 'a meeting of world leaders', 'the G20 summit'],
+    ['to tackle', 'решать (проблему)', 'to deal with a problem', 'We must tackle inequality.'],
+    ['carbon emissions', 'выбросы углерода', 'CO₂ released into the air', 'to reduce carbon emissions'],
+    ['inequality', 'неравенство', 'unfair difference between groups', 'Social inequality is rising.'],
+    ['headline', 'заголовок', 'the title of a news article', 'It made the headlines.']
+  ]
+},
+{
+  id: 'economy', title: { ru: 'Экономика и бизнес', en: 'Economy & business' }, icon: '📈',
+  words: [
+    ['growth', 'рост', 'an increase in economic activity', 'Economic growth slowed down.'],
+    ['inflation', 'инфляция', 'a general rise in prices', 'Inflation reached 5%.'],
+    ['recession', 'рецессия, спад', 'a period of economic decline', 'The country entered a recession.'],
+    ['interest rate', 'процентная ставка', 'the cost of borrowing money', 'The bank raised interest rates.'],
+    ['budget', 'бюджет', 'a plan of income and spending', 'a tight budget'],
+    ['revenue', 'выручка, доход', 'money a company receives', 'Revenue increased by 10%.'],
+    ['profit / loss', 'прибыль / убыток', 'money gained / lost', 'The firm made a loss this year.'],
+    ['supply and demand', 'спрос и предложение', 'the basic market forces', 'Prices depend on supply and demand.'],
+    ['to invest', 'инвестировать', 'to put money into something to gain profit', 'They invest in green energy.'],
+    ['market share', 'доля рынка', 'a company’s part of total sales', 'They gained market share.'],
+    ['to hire / to fire', 'нанимать / увольнять', 'to employ / to dismiss', 'The employee I fired is suing us.'],
+    ['to lend / to borrow', 'одалживать / брать взаймы', 'give / take temporarily', 'Could you lend me your book?'],
+    ['supplies', 'запасы, расходные материалы', 'things needed for work', 'She is in charge of ordering supplies.'],
+    ['to exceed expectations', 'превзойти ожидания', 'to do better than expected', 'We plan to exceed our customers’ expectations.'],
+    ['board of directors', 'совет директоров', 'the group that manages a company', 'a member of the board of directors'],
+    ['CEO', 'генеральный директор', 'Chief Executive Officer', 'They dislike the new CEO.'],
+    ['to delegate', 'делегировать', 'to give a task to someone else', 'A good manager delegates.'],
+    ['to procrastinate', 'откладывать на потом', 'to delay doing something', "Don't procrastinate!"],
+    ['Marketing Mix', 'комплекс маркетинга (4P)', 'Product, Price, Place, Promotion', 'Study the Marketing Mix.'],
+    ['scholarship', 'стипендия', 'money given to a student', 'He got a scholarship.']
+  ]
+},
+{
+  id: 'linkers', title: { ru: 'Связки и союзы', en: 'Linking words' }, icon: '🔗',
+  words: [
+    ['although / even though', 'хотя / даже несмотря на то что', '+ clause: contrast', 'Although he tried, he failed.'],
+    ['despite / in spite of', 'несмотря на', '+ noun or -ing: contrast', 'Despite the rain, we went out.'],
+    ['however', 'однако', 'contrast between sentences', 'However, the results were poor.'],
+    ['whereas', 'тогда как', 'contrast between two facts', 'He is tall, whereas she is short.'],
+    ['unless', 'если не', 'if not', "It won't work unless you charge it."],
+    ['provided / as long as', 'при условии что', 'only if', 'You can go as long as you return early.'],
+    ['whether… or not', 'независимо от того…', 'in either case', 'Whether you like it or not…'],
+    ['rather than', 'вместо того чтобы', 'instead of', 'rather than having to use meat'],
+    ['as well as', 'а также, так же как', 'in addition to; equally well', 'She dresses as well as Joey.'],
+    ['hence / therefore', 'следовательно', 'for this reason', 'Hence the new policy.'],
+    ['consequently', 'в результате', 'as a result', 'Consequently, they needed advice.'],
+    ['since', 'так как; с (времени)', 'because; from a time', 'Since riots were new, they needed help.'],
+    ['in order to', 'для того чтобы', 'with the purpose of', 'In order to rebuild the community…'],
+    ['for instance', 'например', 'for example', 'on the first Monday, for instance'],
+    ['moreover / furthermore', 'более того', 'adding information', 'Moreover, prices are rising.'],
+    ['on the one hand… on the other hand', 'с одной стороны… с другой', 'presenting two sides', 'On the one hand it is cheap…']
+  ]
+},
+{
+  id: 'oral', title: { ru: 'Фразы для устной презентации', en: 'Presentation phrases' }, icon: '🎤',
+  words: [
+    ['Today I’m going to talk about…', 'Сегодня я расскажу о…', 'introducing the topic', 'Today I’m going to talk about the energy crisis.'],
+    ['I have chosen this topic because…', 'Я выбрал(а) эту тему, потому что…', 'justifying your choice', 'I have chosen this topic because it affects us all.'],
+    ['My presentation is divided into three parts.', 'Моя презентация состоит из трёх частей.', 'announcing the plan', 'First…, then…, finally…'],
+    ['First of all / Firstly', 'Прежде всего', 'starting the first point', 'First of all, let’s look at the context.'],
+    ['Let’s move on to…', 'Перейдём к…', 'changing section', 'Let’s move on to the consequences.'],
+    ['As you can see on this slide…', 'Как вы видите на этом слайде…', 'referring to a visual', 'As you can see on this map…'],
+    ['This graph shows that…', 'Этот график показывает, что…', 'commenting a chart', 'This graph shows that prices doubled.'],
+    ['According to (the BBC)…', 'По данным (BBC)…', 'citing a source', 'According to The Guardian…'],
+    ['It is worth noting that…', 'Стоит отметить, что…', 'highlighting', 'It is worth noting that young people are affected.'],
+    ['In my opinion / From my point of view', 'По моему мнению', 'giving your opinion', 'In my opinion, this law is necessary.'],
+    ['To sum up / In conclusion', 'Подводя итог / В заключение', 'concluding', 'To sum up, the situation remains tense.'],
+    ['Thank you for your attention.', 'Спасибо за внимание.', 'ending', 'Thank you for your attention. Do you have any questions?'],
+    ['That’s a good question.', 'Хороший вопрос.', 'answering questions', 'That’s a good question, let me think.'],
+    ['to raise awareness', 'привлечь внимание (к проблеме)', 'to make people know about a problem', 'The campaign raises awareness.'],
+    ['to be on the rise / to decline', 'расти / снижаться', 'increase / decrease', 'Unemployment is on the rise.'],
+    ['a key issue', 'ключевая проблема', 'a very important problem', 'Housing is a key issue.']
+  ]
+},
+{
+  id: 'grammarwords', title: { ru: 'Устойчивые выражения из тестов', en: 'Collocations from the MCQs' }, icon: '🧩',
+  words: [
+    ['to look forward to + -ing', 'с нетерпением ждать', 'to be excited about a future event', "I'm looking forward to meeting him."],
+    ['to be used to + -ing', 'привыкнуть к', 'to be accustomed to', "I'm used to waking up early."],
+    ['used to + verb', 'раньше (привычка)', 'past habit', 'My dad used to tell us stories.'],
+    ['to get things done', 'добиваться результата', 'to complete tasks', 'A good manager gets things done.'],
+    ['to put on / to take off', 'надеть / снять', 'start / stop wearing', 'Put on your coat.'],
+    ['to turn down / up', 'убавить / прибавить', 'decrease / increase volume', 'Turn it down, please.'],
+    ['to be made of', 'быть сделанным из', 'material', 'This table is made of wood.'],
+    ['such a + adj + noun', 'такой…', 'emphasis', 'Max is such a nice guy.'],
+    ['too + adj', 'слишком', 'excessive', "It's too expensive."],
+    ['the best… I have ever…', 'лучший из всех, что я…', 'superlative + experience', 'the best tea I’ve ever tasted'],
+    ['must have + p.p.', 'должно быть, (сделал)', 'deduction about the past', 'She must have forgotten.'],
+    ['I wish I had…', 'Жаль, что у меня нет…', 'present regret', 'I wish I had a better bicycle.'],
+    ['If it hadn’t been for…', 'Если бы не…', 'without (past)', 'If it hadn’t been for the weather…'],
+    ['to be good with / to speak well', 'хорошо разбираться / хорошо говорить', 'adjective vs adverb', 'good with numbers; speaks well'],
+    ['compulsory / optional', 'обязательный / необязательный', 'required / not required', 'English is compulsory.'],
+    ['a threat to', 'угроза для', 'danger for', 'a serious threat to the environment']
+  ]
+}
+];
