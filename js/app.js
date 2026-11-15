@@ -19,9 +19,13 @@ const RULE = Object.fromEntries(RULES.map(r => [r.id, r]));
 const QBY = {};
 GRAMMAR.forEach(g => {
   const tags = (TAGS[g.id] || '').split(',');
-  g.questions.forEach((q, i) => { q.tag = RULE[tags[i]] ? tags[i] : null; q.uid = g.id + ':' + i; q.gid = g.id; QBY[q.uid] = q; });
+  g.questions.forEach((q, i) => { const tg = g.tag || tags[i]; q.tag = RULE[tg] ? tg : null; q.uid = g.id + ':' + i; q.gid = g.id; QBY[q.uid] = q; });
 });
 const ALLQS = Object.values(QBY);
+const TESTS = GRAMMAR.filter(g => !g.drill);   // drills live inside the rule pages, not in the tests list
+const TESTQ = TESTS.reduce((s, g) => s + g.questions.length, 0);
+const counts = s => s.replace('{n}', TESTS.length).replace('{q}', TESTQ).replace('{f}', FILES.length).replace('{r}', RULES.length).replace('{d}', ALLQS.length - TESTQ);
+const srcLabel = q => { const g = GRAMMAR.find(x => x.id === q.gid); return g.drill ? '➕ ' + t('drill_label') : esc(g.title); };
 
 /* ---------- i18n ---------- */
 const T = {
@@ -37,7 +41,8 @@ const T = {
     c_grammar: 'Грамматика (QCM)', c_grammar_d: '{n} тестов, {q} вопросов с объяснениями: с листочков и дополнительные.',
     c_files: 'Понимание текста', c_files_d: '{f} текстов с аудио: вопросы, пропуски, глоссарий, диктанты.',
     nav_rules: 'Правила', nav_review: 'Что подтянуть', nav_tests: 'Тесты',
-    c_rules: 'Правила грамматики', c_rules_d: '15 тем: подробные объяснения, таблицы, что заучить, типичные ошибки и тренировка.',
+    drill_label: 'Доп. упражнение', from_tests: 'из тестов', drill_new: 'дополнительных',
+    c_rules: 'Правила грамматики', c_rules_d: '{r} тем: подробные объяснения, таблицы, что заучить, типичные ошибки и тренировка (+{d} дополнительных вопросов).',
     c_review: 'Что подтянуть', c_review_d: 'Ваши слабые темы, все ошибки и повторение ошибок.',
     rules_title: 'Правила грамматики', rules_sub: 'Всё, что нужно для тестов: объяснения, таблицы, списки для заучивания и тренировка по каждой теме. Значок показывает ваш уровень по теме.',
     practice: 'Тренировка', traps: 'Типичные ошибки', rule: 'Правило',
@@ -121,7 +126,8 @@ const T = {
     c_grammar: 'Grammar (MCQ)', c_grammar_d: '{n} tests, {q} questions with explanations: worksheets plus extra practice.',
     c_files: 'Comprehension', c_files_d: '{f} texts with audio: questions, gap fills, glossary, dictations.',
     nav_rules: 'Rules', nav_review: 'To improve', nav_tests: 'Tests',
-    c_rules: 'Grammar rules', c_rules_d: '15 topics: detailed explanations, tables, things to learn by heart, common mistakes and practice.',
+    drill_label: 'Extra drill', from_tests: 'from tests', drill_new: 'extra',
+    c_rules: 'Grammar rules', c_rules_d: '{r} topics: detailed explanations, tables, things to learn by heart, common mistakes and practice (+{d} extra questions).',
     c_review: 'What to improve', c_review_d: 'Your weak topics, all your mistakes and a mistakes drill.',
     rules_title: 'Grammar rules', rules_sub: 'Everything you need for the tests: explanations, tables, lists to learn and practice for each topic. The badge shows your level per topic.',
     practice: 'Practice', traps: 'Common mistakes', rule: 'Rule',
@@ -333,7 +339,8 @@ function optsHTML(q, sel, reveal, act, attrs) {
 function explainHTML(q, sel) {
   const right = q.a.includes(sel);
   const ans = q.a.map(i => `${LETTERS[i]}) ${esc(q.o[i])}`).join(' / ');
-  const rule = q.tag && RULE[q.tag];
+  const here = currentRoute();
+  const rule = q.tag && !(here[0] === 'rules' && here[1] === q.tag) && RULE[q.tag];
   return `<div class="explain ${right ? 'ok' : 'bad'}"><b>${right ? '✓ ' + t('correct') : '✗ ' + t('wrong') + ' ' + t('answer_is') + ': ' + ans}</b>${q.ex ? '<br>' + esc(L(q.ex)) : ''}
     ${rule ? `<div class="rule-link"><span>📖 <b>${t('rule')}:</b> ${L(rule.short)}</span><a class="btn btn-sm" href="#/rules/${rule.id}">${rule.icon} ${esc(L(rule.title))} →</a></div>` : ''}</div>`;
 }
@@ -386,19 +393,18 @@ function totalWords() { return VOCAB.reduce((s, tp) => s + tp.words.length, 0); 
 function knownCount(tid) { return Object.keys(prog.known).filter(k => !tid || k.startsWith(tid + ':')).length; }
 
 function pageHome() {
-  const done = GRAMMAR.filter(g => prog.g[g.id]).length;
+  const done = TESTS.filter(g => prog.g[g.id]).length;
   const cards = [
     ['#/exam', '📋', '', 'c_exam'], ['#/rules', '📖', 'ok', 'c_rules'], ['#/grammar', '✍️', '', 'c_grammar'], ['#/files', '🎧', 'accent', 'c_files'],
     ['#/vocab', '📚', 'ok', 'c_vocab'], ['#/oral', '🎤', 'accent', 'c_oral'], ['#/mock', '⏱️', '', 'c_mock'], ['#/review', '📊', 'accent', 'c_review']
   ];
   const nWrong = wrongUids().length;
-  const nq = GRAMMAR.reduce((s, g) => s + g.questions.length, 0);
-  const fill = s => s.replace('{n}', GRAMMAR.length).replace('{q}', nq).replace('{f}', FILES.length);
+  const fill = counts;
   return `<section class="hero">
     <div><h1>${t('hero_title')}</h1><p class="hero-lead">${t('hero_lead')}</p>
       <div class="hero-actions"><a class="btn btn-primary" href="#/grammar">${t('start_grammar')} →</a><a class="btn" href="#/exam">${t('how_exam')}</a></div></div>
     <div class="stats">
-      <div class="stat"><b>${done}/${GRAMMAR.length}</b><span>${t('st_tests')}</span></div>
+      <div class="stat"><b>${done}/${TESTS.length}</b><span>${t('st_tests')}</span></div>
       <div class="stat"><b>${knownCount()}</b><span>${t('st_words')}</span></div>
       <div class="stat"><b>${prog.mock ? prog.mock + '%' : '—'}</b><span>${t('st_mock')}</span></div>
     </div></section>
@@ -426,10 +432,10 @@ function pageExam() {
 
 function pageGrammarList() {
   return `<div class="page-head"><h1>${t('grammar_title')}</h1><p class="muted">${t('grammar_sub')}</p></div>
-  <div class="grid grid-2"><a class="card" href="#/rules"><div class="row"><div class="card-icon ok" style="margin:0">📖</div><div><h3>${t('c_rules')}</h3><p class="muted small">${t('c_rules_d')}</p></div></div></a>
+  <div class="grid grid-2"><a class="card" href="#/rules"><div class="row"><div class="card-icon ok" style="margin:0">📖</div><div><h3>${t('c_rules')}</h3><p class="muted small">${counts(t('c_rules_d'))}</p></div></div></a>
     <a class="card" href="#/review"><div class="row"><div class="card-icon accent" style="margin:0">📊</div><div><h3>${t('c_review')}</h3><p class="muted small">${t('c_review_d')}</p></div></div></a></div>
   ${[false, true].map(ex => `<div class="section-title"><h2 style="margin:0">${ex ? '➕ ' + t('extra_tests') : '📄 ' + t('from_course')}</h2></div>
-  <div class="grid grid-3">${GRAMMAR.filter(g => !!g.extra === ex).map(g => {
+  <div class="grid grid-3">${TESTS.filter(g => !!g.extra === ex).map(g => {
     const p = prog.g[g.id], st = S.g[g.id], inProg = st && Object.keys(st.ans).length;
     return `<a class="card" href="#/grammar/${g.id}"><div class="row"><span class="badge primary">${g.level}</span>${g.extra ? `<span class="badge accent">${t('extra')}</span>` : ''}<span class="badge">${esc(g.part)}</span></div>
       <h3 style="margin-top:12px">${esc(g.title)}</h3><p class="muted small">${g.questions.length} ${t('questions')}</p>
@@ -440,9 +446,9 @@ function pageGrammarList() {
 }
 
 function pageGrammar(id) {
-  const gi = GRAMMAR.findIndex(g => g.id === id);
+  const gi = TESTS.findIndex(g => g.id === id);
   if (gi < 0) return notFound();
-  const g = GRAMMAR[gi], st = (S.g[id] = S.g[id] || { ans: {} });
+  const g = TESTS[gi], st = (S.g[id] = S.g[id] || { ans: {} });
   const n = g.questions.length, answered = Object.keys(st.ans).length;
   const score = g.questions.reduce((s, q, qi) => s + (st.ans[qi] !== undefined && q.a.includes(st.ans[qi]) ? 1 : 0), 0);
   let h = `<div class="crumbs"><a href="#/grammar">${t('back')}</a></div>
@@ -452,7 +458,7 @@ function pageGrammar(id) {
   h += g.questions.map((q, qi) => `<div class="q" id="q${qi}"><div class="q-num">${qi + 1} / ${n}</div><div class="q-text">${gapText(q.q)}</div>
     ${optsHTML(q, st.ans[qi], true, 'g-ans', `data-id="${id}" data-q="${qi}"`)}${st.ans[qi] !== undefined ? explainHTML(q, st.ans[qi]) : ''}</div>`).join('');
   if (answered === n) {
-    const p = pct(score, n), next = GRAMMAR[gi + 1];
+    const p = pct(score, n), next = TESTS[gi + 1];
     h += `<div class="card" style="text-align:center"><h2>${t('result')}: ${score}/${n}</h2>${ring(p)}<p>${verdict(p)}</p>
       ${weakTopicsHTML(g.questions, q => st.ans[q.uid.split(':')[1]])}
       <div class="btn-row" style="justify-content:center;margin-top:14px"><button class="btn" data-act="g-reset" data-id="${id}">${t('retry')}</button><a class="btn" href="#/review">📊 ${t('c_review')}</a>
@@ -736,7 +742,7 @@ function pageMock() {
   if (m.phase === 'run') {
     h += `<div class="quizbar"><span class="timer" id="mockTimer">${fmt(Math.max(0, Math.round((m.end - Date.now()) / 1000)))}</span><div class="progress"><i style="width:${pct(answered, n)}%"></i></div>
       <span class="small"><b>${answered}/${n}</b></span><button class="btn btn-sm btn-primary" data-act="mock-finish">${t('finish')}</button></div>`;
-    h += m.qs.map((ref, i) => { const q = qOf(ref); return `<div class="q"><div class="q-num">${i + 1} / ${n} · ${esc(GRAMMAR[ref[0]].title)}</div><div class="q-text">${gapText(q.q)}</div>${optsHTML(q, m.ans[i], false, 'mock-ans', `data-i="${i}"`)}</div>`; }).join('');
+    h += m.qs.map((ref, i) => { const q = qOf(ref); return `<div class="q"><div class="q-num">${i + 1} / ${n} · ${srcLabel(q)}</div><div class="q-text">${gapText(q.q)}</div>${optsHTML(q, m.ans[i], false, 'mock-ans', `data-i="${i}"`)}</div>`; }).join('');
     h += `<div class="btn-row"><button class="btn btn-primary" data-act="mock-finish">${t('finish')}</button></div>`;
     return h;
   }
@@ -744,7 +750,7 @@ function pageMock() {
   h += `<div class="card" style="text-align:center"><h2>${t('result')}: ${sc}/${n}</h2>${ring(p)}<p>${verdict(p)}</p>${n - answered ? `<p class="muted small">${n - answered} ${t('unanswered')}</p>` : ''}
     ${weakTopicsHTML(m.qs.map(qOf), q => m.ans[m.qs.findIndex(ref => qOf(ref) === q)])}
     <div class="btn-row" style="justify-content:center;margin-top:14px"><button class="btn btn-primary" data-act="mock-new">${t('again')}</button><a class="btn" href="#/review">📊 ${t('c_review')}</a></div></div><h2 style="margin-top:24px">${t('review')}</h2>`;
-  h += m.qs.map((ref, i) => { const q = qOf(ref), sel = m.ans[i]; return `<div class="q"><div class="q-num">${i + 1} / ${n} · ${esc(GRAMMAR[ref[0]].title)}</div><div class="q-text">${gapText(q.q)}</div>
+  h += m.qs.map((ref, i) => { const q = qOf(ref), sel = m.ans[i]; return `<div class="q"><div class="q-num">${i + 1} / ${n} · ${srcLabel(q)}</div><div class="q-text">${gapText(q.q)}</div>
     ${optsHTML(q, sel, true, 'noop', '')}${sel !== undefined ? explainHTML(q, sel) : `<div class="explain bad"><b>${t('answer_is')}: ${q.a.map(x => LETTERS[x] + ') ' + esc(q.o[x])).join(' / ')}</b><br>${esc(L(q.ex))}</div>`}</div>`; }).join('');
   return h;
 }
@@ -772,7 +778,7 @@ function tableHTML(rows, head = true) {
     <tbody>${body.map(r => `<tr>${r.map(c => `<td>${cellHTML(c)}</td>`).join('')}</tr>`).join('')}</tbody></table></div>`;
 }
 function practiceList(qs, st, act, attrs) {
-  return qs.map((q, i) => `<div class="q"><div class="q-num">${i + 1} / ${qs.length} · ${esc(GRAMMAR.find(g => g.id === q.gid).title)}</div><div class="q-text">${gapText(q.q)}</div>
+  return qs.map((q, i) => `<div class="q"><div class="q-num">${i + 1} / ${qs.length} · ${srcLabel(q)}</div><div class="q-text">${gapText(q.q)}</div>
     ${optsHTML(q, st.ans[q.uid], true, act, `${attrs} data-uid="${q.uid}"`)}${st.ans[q.uid] !== undefined ? explainHTML(q, st.ans[q.uid]) : ''}</div>`).join('');
 }
 function pageRulesList() {
@@ -792,7 +798,8 @@ function pageRule(id) {
   let h = `<div class="crumbs"><a href="#/rules">${t('back')}</a></div>
   <div class="page-head"><h1>${r.icon} ${esc(L(r.title))}</h1>${levelBadge(topicStats(id))}</div>
   <div class="rule-short">💡 ${L(r.short)}</div>
-  <div class="row" style="margin:14px 0 4px"><a class="btn btn-sm btn-primary" href="#/rules/${id}/practice">🎯 ${t('practice')} (${qs.length})</a></div>`;
+  <div class="row" style="margin:14px 0 4px"><a class="btn btn-sm btn-primary" href="#/rules/${id}/practice">🎯 ${t('practice')} (${qs.length})</a>
+    <span class="small muted">${t('from_tests')}: ${qs.filter(q => !q.gid.startsWith('drill-')).length} · ${t('drill_new')}: ${qs.filter(q => q.gid.startsWith('drill-')).length}</span></div>`;
   r.sections.forEach(s => {
     h += `<div class="card rule-sec"><h2>${L(s.h)}</h2>`;
     if (s.text) h += `<p>${L(s.text)}</p>`;
@@ -830,7 +837,7 @@ function pageReview() {
   if (wrong.length) {
     h += `<div class="section-title"><h2 style="margin:0">❌ ${t('rv_mistakes')} (${wrong.length})</h2></div>`;
     h += wrong.map(uid => { const q = QBY[uid], s = stats[uid];
-      return `<div class="q"><div class="q-num">${esc(GRAMMAR.find(g => g.id === q.gid).title)} · ${q.tag ? RULE[q.tag].icon + ' ' + esc(L(RULE[q.tag].title)) : ''}</div><div class="q-text">${gapText(q.q)}</div>
+      return `<div class="q"><div class="q-num">${srcLabel(q)} ·${q.tag ? RULE[q.tag].icon + ' ' + esc(L(RULE[q.tag].title)) : ''}</div><div class="q-text">${gapText(q.q)}</div>
         ${optsHTML(q, s.sel, true, 'noop', '')}${explainHTML(q, s.sel)}</div>`; }).join('');
   }
   h += `<div class="card" style="margin-top:24px"><h3>💾 ${t('rv_saved')}</h3><p class="muted small">${t('rv_saved_d')}</p><div class="btn-row"><button class="btn btn-sm" data-act="rv-clear">${t('rv_clear_stats')}</button><button class="btn btn-sm" data-act="reset-all">🗑 ${t('rv_reset_all')}</button></div></div>`;
