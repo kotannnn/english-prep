@@ -13,7 +13,15 @@ const range = n => Array.from({ length: n }, (_, i) => i);
 const LETTERS = 'abcdefgh';
 const pct = (a, b) => b ? Math.round(a / b * 100) : 0;
 
-const GRAMMAR = window.GRAMMAR, FILES = window.FILES, VOCAB = window.VOCAB;
+const GRAMMAR = window.GRAMMAR, FILES = window.FILES, VOCAB = window.VOCAB, RULES = window.RULES || [], TAGS = window.TAGS || {};
+const RULE = Object.fromEntries(RULES.map(r => [r.id, r]));
+/* link every grammar question to its rule and give it a stable id */
+const QBY = {};
+GRAMMAR.forEach(g => {
+  const tags = (TAGS[g.id] || '').split(',');
+  g.questions.forEach((q, i) => { q.tag = RULE[tags[i]] ? tags[i] : null; q.uid = g.id + ':' + i; q.gid = g.id; QBY[q.uid] = q; });
+});
+const ALLQS = Object.values(QBY);
 
 /* ---------- i18n ---------- */
 const T = {
@@ -28,6 +36,24 @@ const T = {
     c_exam: 'Протокол контроля', c_exam_d: 'Когда, как и что сдаём: письменный тест и устная презентация.',
     c_grammar: 'Грамматика (QCM)', c_grammar_d: '{n} тестов, {q} вопросов с объяснениями: с листочков и дополнительные.',
     c_files: 'Понимание текста', c_files_d: '{f} текстов с аудио: вопросы, пропуски, глоссарий, диктанты.',
+    nav_rules: 'Правила', nav_review: 'Что подтянуть', nav_tests: 'Тесты',
+    c_rules: 'Правила грамматики', c_rules_d: '15 тем: подробные объяснения, таблицы, что заучить, типичные ошибки и тренировка.',
+    c_review: 'Что подтянуть', c_review_d: 'Ваши слабые темы, все ошибки и повторение ошибок.',
+    rules_title: 'Правила грамматики', rules_sub: 'Всё, что нужно для тестов: объяснения, таблицы, списки для заучивания и тренировка по каждой теме. Значок показывает ваш уровень по теме.',
+    practice: 'Тренировка', traps: 'Типичные ошибки', rule: 'Правило',
+    lv_new: 'Не начато', lv_weak: 'Подтянуть', lv_mid: 'Неплохо', lv_good: 'Хорошо',
+    topics_review: 'Повторите правила', open: 'Открыть',
+    review_banner: 'Ошибок к повторению: {n}', review_banner_d: 'Посмотрите, какие темы подтянуть, и повторите ошибки.',
+    review_title: 'Что подтянуть', review_sub: 'Анализ всех ваших ответов в тестах, тренировках и пробном экзамене. Учитывается последний ответ на каждый вопрос.',
+    review_empty: 'Пока нет ответов. Пройдите любой тест или тренировку — здесь появятся ваши слабые темы и ошибки.',
+    rv_answered: 'вопросов отвечено', rv_acc: 'верных ответов', rv_wrong: 'ошибок сейчас',
+    rv_focus: 'Подтяните в первую очередь', rv_focus_d: 'Темы, где меньше 85% верных ответов. Откройте правило, перечитайте и потренируйтесь.',
+    rv_no_weak: '🎉 Слабых тем нет — так держать! Пройдите ещё не начатые темы.',
+    rv_retry: 'Повторить ошибки', rv_retry_d: 'Только вопросы, на которые вы в последний раз ответили неверно. Правильный ответ убирает вопрос из списка ошибок.',
+    rv_topics: 'Все темы', rv_mistakes: 'Ваши ошибки', rv_nothing: 'Ошибок для повторения нет.', rv_fixed: 'Исправлено {a} из {b}',
+    rv_saved: 'Прогресс сохраняется автоматически', rv_saved_d: 'Ответы, тексты, диктанты, карточки и статистика хранятся в этом браузере на этом устройстве и не сбрасываются при перезагрузке. В режиме инкогнито или после очистки данных браузера они пропадут.',
+    rv_clear_stats: 'Сбросить статистику', rv_reset_all: 'Сбросить весь прогресс',
+    rv_clear_confirm: 'Сбросить статистику ответов и список ошибок?', rv_reset_confirm: 'Удалить ВСЕ ответы и прогресс на этом устройстве?',
     extra: 'Дополнительно', extra_tests: 'Дополнительные тесты', extra_texts: 'Дополнительные тексты', from_course: 'Из курса (листочки)',
     transcript_note_extra: 'Дополнительный текст для практики (не из рабочего листа); озвучивает браузер. Нажмите на предложение, чтобы слушать с него.',
     c_vocab: 'Лексика', c_vocab_d: 'Слова по темам: список, карточки, тест, сопоставление.',
@@ -75,7 +101,7 @@ const T = {
     mock_title: 'Пробный экзамен', mock_sub: 'Случайные вопросы из всех тестов. Ответы и объяснения — только в конце.',
     mock_q: 'вопросов', mock_min: 'мин', mock_start: 'Начать экзамен', finish: 'Завершить', review: 'Разбор ответов',
     time_left: 'Осталось', unanswered: 'без ответа', mock_confirm: 'Завершить экзамен? Есть вопросы без ответа.',
-    footer: 'Тренажёр составлен по материалам курса (рабочие листы, QCM 1–7). Прогресс хранится только в вашем браузере.',
+    footer: 'Тренажёр составлен по материалам курса (рабочие листы, QCM 1–7) и дополнен заданиями для практики. Все ответы и прогресс автоматически сохраняются в этом браузере.',
     theme: 'Сменить тему', lang_label: 'Язык интерфейса', saved: 'Сохранено', back: '← Назад',
     audio_blocked: 'Браузер заблокировал звук — нажмите кнопку ещё раз.', audio_error: 'Не удалось воспроизвести. Проверьте звук и наличие английского голоса в системе.',
     audio_title: 'Аудио и текст', audio_on: 'Включить аудио', audio_off: 'Выключить аудио', speed: 'Скорость',
@@ -94,6 +120,24 @@ const T = {
     c_exam: 'Exam protocol', c_exam_d: 'When, how and what: written test and oral presentation.',
     c_grammar: 'Grammar (MCQ)', c_grammar_d: '{n} tests, {q} questions with explanations: worksheets plus extra practice.',
     c_files: 'Comprehension', c_files_d: '{f} texts with audio: questions, gap fills, glossary, dictations.',
+    nav_rules: 'Rules', nav_review: 'To improve', nav_tests: 'Tests',
+    c_rules: 'Grammar rules', c_rules_d: '15 topics: detailed explanations, tables, things to learn by heart, common mistakes and practice.',
+    c_review: 'What to improve', c_review_d: 'Your weak topics, all your mistakes and a mistakes drill.',
+    rules_title: 'Grammar rules', rules_sub: 'Everything you need for the tests: explanations, tables, lists to learn and practice for each topic. The badge shows your level per topic.',
+    practice: 'Practice', traps: 'Common mistakes', rule: 'Rule',
+    lv_new: 'Not started', lv_weak: 'To improve', lv_mid: 'Fair', lv_good: 'Good',
+    topics_review: 'Review these rules', open: 'Open',
+    review_banner: 'Mistakes to review: {n}', review_banner_d: 'See which topics to work on and redo your mistakes.',
+    review_title: 'What to improve', review_sub: 'Analysis of all your answers in tests, practice and the mock exam. The latest answer to each question counts.',
+    review_empty: 'No answers yet. Take any test or practice — your weak topics and mistakes will appear here.',
+    rv_answered: 'questions answered', rv_acc: 'correct answers', rv_wrong: 'current mistakes',
+    rv_focus: 'Work on these first', rv_focus_d: 'Topics with less than 85% correct. Open the rule, reread it and practise.',
+    rv_no_weak: '🎉 No weak topics — keep it up! Try the topics you have not started yet.',
+    rv_retry: 'Redo mistakes', rv_retry_d: 'Only the questions you last answered wrongly. A correct answer removes the question from your mistakes.',
+    rv_topics: 'All topics', rv_mistakes: 'Your mistakes', rv_nothing: 'No mistakes to redo.', rv_fixed: 'Fixed {a} of {b}',
+    rv_saved: 'Progress is saved automatically', rv_saved_d: 'Answers, texts, dictations, flashcards and statistics are stored in this browser on this device and survive reloads. They are lost in private mode or if you clear browser data.',
+    rv_clear_stats: 'Reset statistics', rv_reset_all: 'Reset all progress',
+    rv_clear_confirm: 'Reset answer statistics and the mistakes list?', rv_reset_confirm: 'Delete ALL answers and progress on this device?',
     extra: 'Extra', extra_tests: 'Extra practice tests', extra_texts: 'Extra texts', from_course: 'From the course (worksheets)',
     transcript_note_extra: 'Extra practice text (not from the worksheets); read aloud by your browser. Click a sentence to listen from there.',
     c_vocab: 'Vocabulary', c_vocab_d: 'Words by topic: list, flashcards, quiz, matching.',
@@ -141,7 +185,7 @@ const T = {
     mock_title: 'Mock exam', mock_sub: 'Random questions from all tests. Answers and explanations only at the end.',
     mock_q: 'questions', mock_min: 'min', mock_start: 'Start exam', finish: 'Finish', review: 'Review',
     time_left: 'Time left', unanswered: 'unanswered', mock_confirm: 'Finish the exam? Some questions are unanswered.',
-    footer: 'Built from the course materials (worksheets, MCQ 1–7). Your progress is stored only in your browser.',
+    footer: 'Built from the course materials (worksheets, MCQ 1–7) plus extra practice. All answers and progress are saved automatically in this browser.',
     theme: 'Toggle theme', lang_label: 'Interface language', saved: 'Saved', back: '← Back',
     audio_blocked: 'The browser blocked audio — press the button again.', audio_error: 'Could not play. Check your sound and that an English voice is installed.',
     audio_title: 'Audio & transcript', audio_on: 'Turn audio on', audio_off: 'Turn audio off', speed: 'Speed',
@@ -160,9 +204,46 @@ const prog = store.get('ep_progress', { g: {}, known: {}, mock: 0 });
 prog.g = prog.g || {}; prog.known = prog.known || {}; prog.mock = prog.mock || 0;
 const saveProg = () => store.set('ep_progress', prog);
 
-/* ---------- state (kept in memory so a language switch keeps answers) ---------- */
-const S = { g: {}, f: {}, v: {}, mock: { phase: 'setup' }, oral: { total: 300, left: 300, running: false } };
+/* ---------- state: saved in localStorage so answers survive reloads ---------- */
+const S = {
+  g: store.get('ep_g', {}), f: store.get('ep_f', {}), v: store.get('ep_v', {}), r: store.get('ep_r', {}),
+  rv: store.get('ep_rv', null), mock: store.get('ep_mock', { phase: 'setup' }),
+  oral: { total: 300, left: 300, running: false }
+};
 const checks = store.get('ep_checks', {});
+const matchStore = store.get('ep_m', {});
+Object.values(matchStore).forEach(m => { if (m) { m.err = null; m.sel = null; } });
+function persist() {
+  store.set('ep_g', S.g); store.set('ep_f', S.f); store.set('ep_v', S.v); store.set('ep_r', S.r);
+  store.set('ep_rv', S.rv); store.set('ep_mock', S.mock); store.set('ep_m', matchStore);
+}
+let persistT;
+const persistSoon = () => { clearTimeout(persistT); persistT = setTimeout(persist, 400); };
+window.addEventListener('pagehide', persist);
+
+/* ---------- per-question statistics (for "what to improve") ---------- */
+const stats = store.get('ep_stats', {});
+function record(uid, sel) {
+  const q = QBY[uid]; if (!q) return;
+  const ok = q.a.includes(sel), s = stats[uid] || (stats[uid] = { c: 0, w: 0 });
+  if (ok) s.c++; else s.w++;
+  s.last = ok; s.sel = sel; s.t = Date.now();
+  store.set('ep_stats', stats);
+}
+function topicStats(tag) {
+  const qs = ALLQS.filter(q => q.tag === tag); let ans = 0, ok = 0;
+  qs.forEach(q => { const s = stats[q.uid]; if (s && typeof s.last === 'boolean') { ans++; if (s.last) ok++; } });
+  return { total: qs.length, ans, ok, acc: ans ? pct(ok, ans) : null };
+}
+const level = st => !st.ans ? 'new' : st.acc < 60 ? 'weak' : st.acc < 85 ? 'mid' : 'good';
+const LEVEL_CLS = { new: '', weak: 'bad', mid: 'accent', good: 'ok' };
+const levelBadge = st => `<span class="badge ${LEVEL_CLS[level(st)]}">${t('lv_' + level(st))}${st.ans ? ' · ' + st.acc + '%' : ''}</span>`;
+const wrongUids = () => ALLQS.filter(q => stats[q.uid] && stats[q.uid].last === false).map(q => q.uid);
+function weakTopicsHTML(qs, getSel) {
+  const tags = [...new Set(qs.filter(q => q.tag && getSel(q) !== undefined && !q.a.includes(getSel(q))).map(q => q.tag))];
+  if (!tags.length) return '';
+  return `<div class="explain bad" style="text-align:left;margin-top:14px"><b>📌 ${t('topics_review')}:</b><div class="row" style="margin-top:8px">${tags.map(tg => `<a class="btn btn-sm" href="#/rules/${tg}">${RULE[tg].icon} ${esc(L(RULE[tg].title))}</a>`).join('')}</div></div>`;
+}
 
 /* ---------- speech ---------- */
 const TTS = 'speechSynthesis' in window && 'SpeechSynthesisUtterance' in window;
@@ -252,7 +333,9 @@ function optsHTML(q, sel, reveal, act, attrs) {
 function explainHTML(q, sel) {
   const right = q.a.includes(sel);
   const ans = q.a.map(i => `${LETTERS[i]}) ${esc(q.o[i])}`).join(' / ');
-  return `<div class="explain ${right ? 'ok' : 'bad'}"><b>${right ? '✓ ' + t('correct') : '✗ ' + t('wrong') + ' ' + t('answer_is') + ': ' + ans}</b>${q.ex ? '<br>' + esc(L(q.ex)) : ''}</div>`;
+  const rule = q.tag && RULE[q.tag];
+  return `<div class="explain ${right ? 'ok' : 'bad'}"><b>${right ? '✓ ' + t('correct') : '✗ ' + t('wrong') + ' ' + t('answer_is') + ': ' + ans}</b>${q.ex ? '<br>' + esc(L(q.ex)) : ''}
+    ${rule ? `<div class="rule-link"><span>📖 <b>${t('rule')}:</b> ${L(rule.short)}</span><a class="btn btn-sm" href="#/rules/${rule.id}">${rule.icon} ${esc(L(rule.title))} →</a></div>` : ''}</div>`;
 }
 
 function matchHTML(key, lefts, rights, st) {
@@ -274,7 +357,6 @@ function matchHTML(key, lefts, rights, st) {
   if (st.done.length === n) h += `<div class="explain ok" style="margin-top:14px"><b>🎉 ${t('match_done')}</b> ${st.miss} ${t('mistakes')}. <button class="btn btn-sm" data-act="m-reset" data-key="${key}">${t('again')}</button></div>`;
   return h;
 }
-const matchStore = {};
 function getMatch(key) { return (matchStore[key] = matchStore[key] || { done: [], sel: null, err: null, miss: 0 }); }
 
 function diffWords(ref, inp) {
@@ -306,9 +388,10 @@ function knownCount(tid) { return Object.keys(prog.known).filter(k => !tid || k.
 function pageHome() {
   const done = GRAMMAR.filter(g => prog.g[g.id]).length;
   const cards = [
-    ['#/exam', '📋', '', 'c_exam'], ['#/grammar', '✍️', '', 'c_grammar'], ['#/files', '🎧', 'accent', 'c_files'],
-    ['#/vocab', '📚', 'ok', 'c_vocab'], ['#/oral', '🎤', 'accent', 'c_oral'], ['#/mock', '⏱️', '', 'c_mock']
+    ['#/exam', '📋', '', 'c_exam'], ['#/rules', '📖', 'ok', 'c_rules'], ['#/grammar', '✍️', '', 'c_grammar'], ['#/files', '🎧', 'accent', 'c_files'],
+    ['#/vocab', '📚', 'ok', 'c_vocab'], ['#/oral', '🎤', 'accent', 'c_oral'], ['#/mock', '⏱️', '', 'c_mock'], ['#/review', '📊', 'accent', 'c_review']
   ];
+  const nWrong = wrongUids().length;
   const nq = GRAMMAR.reduce((s, g) => s + g.questions.length, 0);
   const fill = s => s.replace('{n}', GRAMMAR.length).replace('{q}', nq).replace('{f}', FILES.length);
   return `<section class="hero">
@@ -319,6 +402,7 @@ function pageHome() {
       <div class="stat"><b>${knownCount()}</b><span>${t('st_words')}</span></div>
       <div class="stat"><b>${prog.mock ? prog.mock + '%' : '—'}</b><span>${t('st_mock')}</span></div>
     </div></section>
+    ${nWrong ? `<a class="card review-banner" href="#/review"><div class="row"><span style="font-size:1.6rem">📊</span><div><b>${t('review_banner').replace('{n}', nWrong)}</b><div class="muted small">${t('review_banner_d')}</div></div><span class="spacer"></span><span class="btn btn-sm btn-primary">${t('open')} →</span></div></a>` : ''}
     <h2>${t('sections')}</h2>
     <div class="grid grid-3">${cards.map(c => `<a class="card" href="${c[0]}"><div class="card-icon ${c[2]}">${c[1]}</div><h3>${t(c[3])}</h3><p class="muted small">${fill(t(c[3] + '_d'))}</p></a>`).join('')}</div>`;
 }
@@ -342,6 +426,8 @@ function pageExam() {
 
 function pageGrammarList() {
   return `<div class="page-head"><h1>${t('grammar_title')}</h1><p class="muted">${t('grammar_sub')}</p></div>
+  <div class="grid grid-2"><a class="card" href="#/rules"><div class="row"><div class="card-icon ok" style="margin:0">📖</div><div><h3>${t('c_rules')}</h3><p class="muted small">${t('c_rules_d')}</p></div></div></a>
+    <a class="card" href="#/review"><div class="row"><div class="card-icon accent" style="margin:0">📊</div><div><h3>${t('c_review')}</h3><p class="muted small">${t('c_review_d')}</p></div></div></a></div>
   ${[false, true].map(ex => `<div class="section-title"><h2 style="margin:0">${ex ? '➕ ' + t('extra_tests') : '📄 ' + t('from_course')}</h2></div>
   <div class="grid grid-3">${GRAMMAR.filter(g => !!g.extra === ex).map(g => {
     const p = prog.g[g.id], st = S.g[g.id], inProg = st && Object.keys(st.ans).length;
@@ -368,7 +454,8 @@ function pageGrammar(id) {
   if (answered === n) {
     const p = pct(score, n), next = GRAMMAR[gi + 1];
     h += `<div class="card" style="text-align:center"><h2>${t('result')}: ${score}/${n}</h2>${ring(p)}<p>${verdict(p)}</p>
-      <div class="btn-row" style="justify-content:center"><button class="btn" data-act="g-reset" data-id="${id}">${t('retry')}</button>
+      ${weakTopicsHTML(g.questions, q => st.ans[q.uid.split(':')[1]])}
+      <div class="btn-row" style="justify-content:center;margin-top:14px"><button class="btn" data-act="g-reset" data-id="${id}">${t('retry')}</button><a class="btn" href="#/review">📊 ${t('c_review')}</a>
       ${next ? `<a class="btn btn-primary" href="#/grammar/${next.id}">${t('next_test')} →</a>` : `<a class="btn btn-primary" href="#/mock">${t('c_mock')} →</a>`}</div></div>`;
   }
   return h;
@@ -655,7 +742,8 @@ function pageMock() {
   }
   const sc = m.qs.reduce((s, ref, i) => s + (m.ans[i] !== undefined && qOf(ref).a.includes(m.ans[i]) ? 1 : 0), 0), p = pct(sc, n);
   h += `<div class="card" style="text-align:center"><h2>${t('result')}: ${sc}/${n}</h2>${ring(p)}<p>${verdict(p)}</p>${n - answered ? `<p class="muted small">${n - answered} ${t('unanswered')}</p>` : ''}
-    <button class="btn btn-primary" data-act="mock-new">${t('again')}</button></div><h2 style="margin-top:24px">${t('review')}</h2>`;
+    ${weakTopicsHTML(m.qs.map(qOf), q => m.ans[m.qs.findIndex(ref => qOf(ref) === q)])}
+    <div class="btn-row" style="justify-content:center;margin-top:14px"><button class="btn btn-primary" data-act="mock-new">${t('again')}</button><a class="btn" href="#/review">📊 ${t('c_review')}</a></div></div><h2 style="margin-top:24px">${t('review')}</h2>`;
   h += m.qs.map((ref, i) => { const q = qOf(ref), sel = m.ans[i]; return `<div class="q"><div class="q-num">${i + 1} / ${n} · ${esc(GRAMMAR[ref[0]].title)}</div><div class="q-text">${gapText(q.q)}</div>
     ${optsHTML(q, sel, true, 'noop', '')}${sel !== undefined ? explainHTML(q, sel) : `<div class="explain bad"><b>${t('answer_is')}: ${q.a.map(x => LETTERS[x] + ') ' + esc(q.o[x])).join(' / ')}</b><br>${esc(L(q.ex))}</div>`}</div>`; }).join('');
   return h;
@@ -665,6 +753,8 @@ function mockFinish() {
   m.phase = 'done'; clearInterval(mockInt); mockInt = null;
   const n = m.qs.length, sc = m.qs.reduce((s, ref, i) => s + (m.ans[i] !== undefined && qOf(ref).a.includes(m.ans[i]) ? 1 : 0), 0);
   prog.mock = Math.max(prog.mock || 0, pct(sc, n)); saveProg();
+  m.qs.forEach((ref, i) => { if (m.ans[i] !== undefined) record(qOf(ref).uid, m.ans[i]); });
+  persist();
   if (currentRoute()[0] === 'mock') { render(); window.scrollTo(0, 0); }
 }
 function mockTick() {
@@ -674,17 +764,104 @@ function mockTick() {
   if (left <= 0) { toast(t('time_up')); mockFinish(); }
 }
 
+/* ----- rules ----- */
+const cellHTML = c => (c && typeof c === 'object') ? L(c) : c;
+function tableHTML(rows, head = true) {
+  const body = head ? rows.slice(1) : rows;
+  return `<div class="table-wrap"><table class="rule-table">${head ? `<thead><tr>${rows[0].map(c => `<th>${cellHTML(c)}</th>`).join('')}</tr></thead>` : ''}
+    <tbody>${body.map(r => `<tr>${r.map(c => `<td>${cellHTML(c)}</td>`).join('')}</tr>`).join('')}</tbody></table></div>`;
+}
+function practiceList(qs, st, act, attrs) {
+  return qs.map((q, i) => `<div class="q"><div class="q-num">${i + 1} / ${qs.length} · ${esc(GRAMMAR.find(g => g.id === q.gid).title)}</div><div class="q-text">${gapText(q.q)}</div>
+    ${optsHTML(q, st.ans[q.uid], true, act, `${attrs} data-uid="${q.uid}"`)}${st.ans[q.uid] !== undefined ? explainHTML(q, st.ans[q.uid]) : ''}</div>`).join('');
+}
+function pageRulesList() {
+  return `<div class="page-head"><h1>${t('rules_title')}</h1><p class="muted">${t('rules_sub')}</p></div>
+  <div class="grid grid-2">${RULES.map(r => { const st = topicStats(r.id);
+    return `<a class="card rule-card" href="#/rules/${r.id}"><div class="row" style="justify-content:space-between"><div class="card-icon ok" style="margin:0">${r.icon}</div>${levelBadge(st)}</div>
+      <h3 style="margin-top:12px">${esc(L(r.title))}</h3><p class="small muted">${L(r.short)}</p>
+      <div class="row small" style="margin-top:8px"><span>${st.total} ${t('questions')} · ${t('answered').toLowerCase()} ${st.ans}</span></div>
+      <div class="progress" style="margin-top:6px"><i style="width:${pct(st.ans, st.total)}%"></i></div></a>`; }).join('')}</div>`;
+}
+function pageRule(id) {
+  const r = RULE[id];
+  if (!r) return notFound();
+  const idx = RULES.indexOf(r), prev = RULES[idx - 1], next = RULES[idx + 1];
+  const qs = ALLQS.filter(q => q.tag === id), st = (S.r[id] = S.r[id] || { ans: {} });
+  const answered = qs.filter(q => st.ans[q.uid] !== undefined).length, score = qs.filter(q => st.ans[q.uid] !== undefined && q.a.includes(st.ans[q.uid])).length;
+  let h = `<div class="crumbs"><a href="#/rules">${t('back')}</a></div>
+  <div class="page-head"><h1>${r.icon} ${esc(L(r.title))}</h1>${levelBadge(topicStats(id))}</div>
+  <div class="rule-short">💡 ${L(r.short)}</div>
+  <div class="row" style="margin:14px 0 4px"><a class="btn btn-sm btn-primary" href="#/rules/${id}/practice">🎯 ${t('practice')} (${qs.length})</a></div>`;
+  r.sections.forEach(s => {
+    h += `<div class="card rule-sec"><h2>${L(s.h)}</h2>`;
+    if (s.text) h += `<p>${L(s.text)}</p>`;
+    if (s.table) h += tableHTML(s.table);
+    if (s.list) h += `<ul class="rule-list">${s.list.map(i => `<li>${L(i)}</li>`).join('')}</ul>`;
+    if (s.ex) h += `<div class="examples">${s.ex.map(e => `<div class="row">${sayBtn(e, true)}<i>${esc(e)}</i></div>`).join('')}</div>`;
+    h += '</div>';
+  });
+  if (r.memo) h += `<div class="card memo"><h2>📌 ${L(r.memo.h)}</h2>${r.memo.table ? tableHTML(r.memo.table, false) : `<div class="row">${r.memo.items.map(i => `<span class="chip-static">${esc(i)}</span>`).join('')}</div>`}</div>`;
+  if (r.traps) h += `<div class="card"><h2>⚠️ ${t('traps')}</h2><div class="traps">${r.traps.map(([bad, good]) => `<div class="trap"><span class="trap-bad">✗ ${esc(bad)}</span><span class="trap-good">✓ ${esc(good)}</span></div>`).join('')}</div></div>`;
+  h += `<div class="section-title" id="practice"><h2 style="margin:0">🎯 ${t('practice')}</h2></div>
+    <div class="quizbar"><span class="small">${t('answered')} <b>${answered}/${qs.length}</b></span><div class="progress"><i style="width:${pct(answered, qs.length)}%"></i></div><span class="score">✓ ${score}</span><button class="btn btn-sm" data-act="r-reset" data-tag="${id}">${t('reset')}</button></div>
+    ${practiceList(qs, st, 'r-ans', `data-tag="${id}"`)}`;
+  if (answered === qs.length && qs.length) h += `<div class="card" style="text-align:center"><h2>${t('result')}: ${score}/${qs.length}</h2>${ring(pct(score, qs.length))}<p>${verdict(pct(score, qs.length))}</p></div>`;
+  h += `<div class="btn-row" style="margin-top:20px;justify-content:space-between">${prev ? `<a class="btn" href="#/rules/${prev.id}">← ${esc(L(prev.title))}</a>` : '<span></span>'}${next ? `<a class="btn btn-primary" href="#/rules/${next.id}">${esc(L(next.title))} →</a>` : ''}</div>`;
+  return h;
+}
+
+/* ----- what to improve ----- */
+function pageReview() {
+  const answered = ALLQS.filter(q => stats[q.uid] && typeof stats[q.uid].last === 'boolean');
+  const okN = answered.filter(q => stats[q.uid].last).length, wrong = wrongUids();
+  let h = `<div class="page-head"><h1>📊 ${t('review_title')}</h1><p class="muted">${t('review_sub')}</p></div>`;
+  if (!answered.length) return h + `<div class="card" style="text-align:center"><p style="font-size:2.4rem;margin:0">🌱</p><p>${t('review_empty')}</p><div class="btn-row" style="justify-content:center"><a class="btn btn-primary" href="#/grammar">${t('nav_grammar')}</a><a class="btn" href="#/rules">${t('nav_rules')}</a></div></div>`;
+  const topics = RULES.map(r => ({ r, st: topicStats(r.id) })).sort((a, b) => (a.st.ans ? a.st.acc : 101) - (b.st.ans ? b.st.acc : 101));
+  h += `<div class="stats" style="margin-bottom:20px"><div class="stat"><b>${answered.length}/${ALLQS.length}</b><span>${t('rv_answered')}</span></div>
+    <div class="stat"><b>${pct(okN, answered.length)}%</b><span>${t('rv_acc')}</span></div><div class="stat"><b>${wrong.length}</b><span>${t('rv_wrong')}</span></div></div>`;
+  const weak = topics.filter(x => x.st.ans && x.st.acc < 85);
+  h += `<div class="card"><h2>🎯 ${t('rv_focus')}</h2>${weak.length ? `<p class="muted small">${t('rv_focus_d')}</p><div class="row">${weak.map(x => `<a class="btn btn-sm" href="#/rules/${x.r.id}">${x.r.icon} ${esc(L(x.r.title))} · ${x.st.acc}%</a>`).join('')}</div>` : `<p>${t('rv_no_weak')}</p>`}
+    ${wrong.length ? `<div class="btn-row" style="margin-top:14px"><button class="btn btn-primary" data-act="rv-start">🔁 ${t('rv_retry')} (${wrong.length})</button></div>` : ''}</div>`;
+  h += `<div class="section-title"><h2 style="margin:0">${t('rv_topics')}</h2></div><div class="card"><div class="topic-rows">${topics.map(({ r, st }) => `<div class="topic-row">
+      <a href="#/rules/${r.id}" class="topic-name">${r.icon} ${esc(L(r.title))}</a>
+      <div class="topic-bar"><div class="progress"><i style="width:${st.acc || 0}%;background:${{ weak: 'var(--bad)', mid: 'var(--accent)', good: 'var(--ok)', new: 'var(--border)' }[level(st)]}"></i></div><span class="small muted">${st.ok}/${st.ans} · ${st.total} ${t('questions')}</span></div>
+      ${levelBadge(st)}<a class="btn btn-sm" href="#/rules/${r.id}/practice">${t('practice')}</a></div>`).join('')}</div></div>`;
+  if (wrong.length) {
+    h += `<div class="section-title"><h2 style="margin:0">❌ ${t('rv_mistakes')} (${wrong.length})</h2></div>`;
+    h += wrong.map(uid => { const q = QBY[uid], s = stats[uid];
+      return `<div class="q"><div class="q-num">${esc(GRAMMAR.find(g => g.id === q.gid).title)} · ${q.tag ? RULE[q.tag].icon + ' ' + esc(L(RULE[q.tag].title)) : ''}</div><div class="q-text">${gapText(q.q)}</div>
+        ${optsHTML(q, s.sel, true, 'noop', '')}${explainHTML(q, s.sel)}</div>`; }).join('');
+  }
+  h += `<div class="card" style="margin-top:24px"><h3>💾 ${t('rv_saved')}</h3><p class="muted small">${t('rv_saved_d')}</p><div class="btn-row"><button class="btn btn-sm" data-act="rv-clear">${t('rv_clear_stats')}</button><button class="btn btn-sm" data-act="reset-all">🗑 ${t('rv_reset_all')}</button></div></div>`;
+  return h;
+}
+function pageReviewPractice() {
+  const rv = S.rv;
+  if (!rv || !rv.uids || !rv.uids.length) return `<div class="crumbs"><a href="#/review">${t('back')}</a></div><div class="card"><p>${t('rv_nothing')}</p><a class="btn" href="#/review">${t('c_review')}</a></div>`;
+  const qs = rv.uids.map(u => QBY[u]).filter(Boolean), answered = qs.filter(q => rv.ans[q.uid] !== undefined).length;
+  const score = qs.filter(q => rv.ans[q.uid] !== undefined && q.a.includes(rv.ans[q.uid])).length;
+  let h = `<div class="crumbs"><a href="#/review">${t('back')}</a></div><div class="page-head"><h1>🔁 ${t('rv_retry')}</h1><p class="muted">${t('rv_retry_d')}</p></div>
+    <div class="quizbar"><span class="small">${t('answered')} <b>${answered}/${qs.length}</b></span><div class="progress"><i style="width:${pct(answered, qs.length)}%"></i></div><span class="score">✓ ${score}</span></div>
+    ${practiceList(qs, rv, 'rv-ans', '')}`;
+  if (answered === qs.length) h += `<div class="card" style="text-align:center"><h2>${t('rv_fixed').replace('{a}', score).replace('{b}', qs.length)}</h2>${ring(pct(score, qs.length))}${weakTopicsHTML(qs, q => rv.ans[q.uid])}
+    <div class="btn-row" style="justify-content:center;margin-top:14px"><a class="btn btn-primary" href="#/review">📊 ${t('c_review')}</a>${wrongUids().length ? `<button class="btn" data-act="rv-start">🔁 ${t('rv_retry')} (${wrongUids().length})</button>` : ''}</div></div>`;
+  return h;
+}
+
 function notFound() { return `<div class="card"><h2>404</h2><a class="btn" href="#/">${t('nav_home')}</a></div>`; }
 
 /* ---------- router ---------- */
 const main = $('#main');
 const currentRoute = () => location.hash.replace(/^#\/?/, '').split('/').filter(Boolean);
 function render() {
-  const [a, b] = currentRoute();
+  const [a, b, c] = currentRoute();
   let html;
   switch (a) {
     case undefined: html = pageHome(); break;
     case 'exam': html = pageExam(); break;
+    case 'rules': html = b ? pageRule(b) : pageRulesList(); break;
+    case 'review': html = b === 'practice' ? pageReviewPractice() : pageReview(); break;
     case 'grammar': html = b ? pageGrammar(b) : pageGrammarList(); break;
     case 'files': html = b ? pageFile(b) : pageFilesList(); break;
     case 'vocab': html = b ? pageVocab(b) : pageVocabList(); break;
@@ -693,6 +870,7 @@ function render() {
     default: html = notFound();
   }
   main.innerHTML = html;
+  render.scrollTarget = (a === 'rules' && c === 'practice') ? 'practice' : null;
   const sec = a || 'home';
   document.querySelectorAll('[data-nav]').forEach(el => {
     const on = el.dataset.nav === sec || (el.dataset.nav === 'grammar' && sec === 'mock' && !el.closest('.nav'));
@@ -707,8 +885,13 @@ function applyStatic() {
   $('#footerText').textContent = t('footer');
   $('#themeBtn').setAttribute('aria-label', t('theme'));
   $('#langSeg').setAttribute('aria-label', t('lang_label'));
+  const rb = $('.review-btn'); if (rb) { rb.setAttribute('aria-label', t('nav_review')); rb.title = t('nav_review'); }
 }
-window.addEventListener('hashchange', () => { stopAudio(); render(); window.scrollTo(0, 0); });
+function scrollAfterNav() {
+  const tg = render.scrollTarget && document.getElementById(render.scrollTarget);
+  if (tg) tg.scrollIntoView({ behavior: 'instant', block: 'start' }); else window.scrollTo(0, 0);
+}
+window.addEventListener('hashchange', () => { stopAudio(); render(); scrollAfterNav(); });
 
 /* ---------- theme ---------- */
 let theme = store.get('ep_theme', 'auto');
@@ -736,6 +919,7 @@ main.addEventListener('click', e => {
   const d = el.dataset, F = S.f;
   switch (d.act) {
     case 'g-ans': { const st = S.g[d.id]; if (st.ans[d.q] !== undefined) return; st.ans[d.q] = +d.o;
+      record(d.id + ':' + d.q, +d.o);
       const g = GRAMMAR.find(x => x.id === d.id);
       if (Object.keys(st.ans).length === g.questions.length) {
         const sc = g.questions.reduce((s, q, qi) => s + (q.a.includes(st.ans[qi]) ? 1 : 0), 0);
@@ -743,6 +927,14 @@ main.addEventListener('click', e => {
       }
       render(); break; }
     case 'g-reset': S.g[d.id] = { ans: {} }; render(); window.scrollTo(0, 0); break;
+    case 'r-ans': { const st = S.r[d.tag]; if (st.ans[d.uid] !== undefined) return; st.ans[d.uid] = +d.o; record(d.uid, +d.o); render(); break; }
+    case 'r-reset': S.r[d.tag] = { ans: {} }; render(); document.getElementById('practice').scrollIntoView({ behavior: 'instant' }); break;
+    case 'rv-ans': { const rv = S.rv; if (rv.ans[d.uid] !== undefined) return; rv.ans[d.uid] = +d.o; record(d.uid, +d.o); render(); break; }
+    case 'rv-start': S.rv = { uids: shuffle(wrongUids()), ans: {} }; persist(); if (location.hash === '#/review/practice') { render(); window.scrollTo(0, 0); } else location.hash = '#/review/practice'; break;
+    case 'rv-clear': if (!confirm(t('rv_clear_confirm'))) return; Object.keys(stats).forEach(k => delete stats[k]); store.set('ep_stats', stats); S.rv = null; render(); break;
+    case 'reset-all': if (!confirm(t('rv_reset_confirm'))) return;
+      try { Object.keys(localStorage).filter(k => k.startsWith('ep_') && k !== 'ep_lang' && k !== 'ep_theme').forEach(k => localStorage.removeItem(k)); } catch (err) { /* ignore */ }
+      location.hash = '#/'; location.reload(); return;
     case 'f-ans': if (F[d.key].sel === undefined) { F[d.key].sel = +d.o; render(); } break;
     case 'multi': { const st = F[d.key], o = +d.o; st.sel = st.sel.includes(o) ? st.sel.filter(x => x !== o) : [...st.sel, o]; render(); break; }
     case 'multi-check': F[d.key].checked = true; render(); break;
@@ -792,6 +984,7 @@ main.addEventListener('click', e => {
     case 'mock-finish': if (Object.keys(S.mock.ans).length < S.mock.qs.length && !confirm(t('mock_confirm'))) return; mockFinish(); break;
     case 'mock-new': S.mock = { phase: 'setup' }; render(); break;
   }
+  persist();
 });
 main.addEventListener('keydown', e => {
   if ((e.key === 'Enter' || e.key === ' ') && e.target.matches('.flash, .ts')) { e.preventDefault(); e.target.click(); }
@@ -804,6 +997,7 @@ main.addEventListener('input', e => {
     case 'fill': { const st = S.f[d.key]; st.vals[d.n] = el.value; if (st.checked || st.shown) { st.checked = false; st.shown = false; el.className = 'fill-input'; } break; }
     case 'vsearch': S.v.search = el.value; $('#vresults').innerHTML = searchResults(el.value); break;
   }
+  persistSoon();
 });
 main.addEventListener('change', e => {
   const el = e.target;
@@ -811,5 +1005,6 @@ main.addEventListener('change', e => {
 });
 
 /* ---------- init ---------- */
-applyTheme(); applyStatic(); render();
+if (S.mock && S.mock.phase === 'run') { if (!Array.isArray(S.mock.qs)) S.mock = { phase: 'setup' }; else mockInt = setInterval(mockTick, 1000); }
+applyTheme(); applyStatic(); render(); scrollAfterNav();
 })();
